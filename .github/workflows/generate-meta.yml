@@ -54,10 +54,6 @@ jobs:
           DEPLOY_TO_GIT: "false"
         run: |
           set -euo pipefail
-          # index.py treats every entry in the meta root as a package and reads
-          # <entry>/package.json from it, so the site's own tree has to be out of
-          # the way. None of this is staged, it just must not be indexed.
-          rm -rf launcher/static launcher/.github launcher/.gitattributes
           cd generator
           ./update.sh
 
