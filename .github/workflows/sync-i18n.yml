@@ -1,0 +1,80 @@
+name: Sync i18n
+
+on:
+  schedule:
+    # daily, off the top of the hour to avoid the scheduler congestion
+    - cron: "23 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: i18n
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the sync scripts
+        uses: actions/checkout@v6
+        with:
+          repository: SpikyTeam/SpikyMC
+          ref: develop
+          path: scripts
+          sparse-checkout: infra/i18n
+
+      - name: Check out the site
+        uses: actions/checkout@v6
+        with:
+          path: site
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install the Qt translation tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq qttools5-dev-tools
+
+      - name: Sync the translations
+        env:
+          I18N_DST_DIR: ${{ github.workspace }}/site/static/i18n
+          I18N_WORK_DIR: ${{ github.workspace }}/work
+          # only the overlay files, the base-<code>.ts files are the input that
+          # lconvert merges the overlay into and must not be treated as overlays
+          I18N_OVERLAY_DIR: ${{ github.workspace }}/overlay
+          I18N_BASE_TS_DIR: ${{ github.workspace }}/scripts/infra/i18n
+        run: |
+          set -euo pipefail
+          mkdir -p overlay work
+          find scripts/infra/i18n -maxdepth 1 -name '*.ts' ! -name 'base-*' \
+            -exec cp {} overlay/ \;
+          ls -l overlay
+          python scripts/infra/i18n/i18n_sync.py
+
+      - name: Commit the translations
+        run: |
+          set -euo pipefail
+          cd site
+          git config user.name "SpikyTeam Meta Bot"
+          git config user.email "meta-bot@spiky.team"
+          git add static/i18n
+          if git diff --cached --quiet; then
+            echo "translations are already up to date"
+            exit 0
+          fi
+          git commit -m "Update translations $(date -I)"
+          git push origin HEAD:master
+
+  build:
+    needs: sync
+    # the push above uses GITHUB_TOKEN, which does not raise a push event
+    uses: ./.github/workflows/build.yml
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
