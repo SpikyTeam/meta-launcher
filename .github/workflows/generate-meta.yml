@@ -44,9 +44,11 @@ jobs:
 
       - name: Generate the meta tree
         env:
-          META_UPSTREAM_DIR: upstream
-          META_LAUNCHER_DIR: launcher
-          META_CACHE_DIR: caches
+          # update.sh runs from the generator directory, so these have to be
+          # absolute -- it resolves them against its own working directory
+          META_UPSTREAM_DIR: ${{ github.workspace }}/upstream
+          META_LAUNCHER_DIR: ${{ github.workspace }}/launcher
+          META_CACHE_DIR: ${{ github.workspace }}/caches
           # the commit and the push are done below with GITHUB_TOKEN, which only
           # has access to this repository
           DEPLOY_TO_GIT: "false"
