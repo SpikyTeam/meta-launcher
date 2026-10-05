@@ -6,7 +6,7 @@
                 "artifact": {
                     "sha1": "852b7e59748da1512d40e38407eadb1f0031a996",
                     "size": 29800,
-                    "url": "https://files.prismlauncher.org/maven/io/github/zekerzhayard/ForgeWrapper/prism-2026-08-01/ForgeWrapper-prism-2026-08-01.jar"
+                    "url": "https://mc.spiky.team/maven/io/github/zekerzhayard/ForgeWrapper/prism-2026-08-01/ForgeWrapper-prism-2026-08-01.jar"
                 }
             },
             "name": "io.github.zekerzhayard:ForgeWrapper:prism-2026-08-01"
@@ -2521,6 +2521,7 @@
             "uid": "net.minecraft"
         }
     ],
+    "type": "beta",
     "uid": "net.neoforged",
     "version": "20.2.26-beta"
 }
