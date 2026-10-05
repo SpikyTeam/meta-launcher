@@ -71,3 +71,13 @@ jobs:
           fi
           git commit -m "Update $(date -I)"
           git push origin HEAD:master
+
+  build:
+    needs: generate
+    # the push above uses GITHUB_TOKEN, which does not raise a push event, so the
+    # site has to be rebuilt from this run
+    uses: ./.github/workflows/build.yml
+    permissions:
+      contents: write
+      pages: write
+      id-token: write

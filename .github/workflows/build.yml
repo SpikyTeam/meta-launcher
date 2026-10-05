@@ -5,6 +5,9 @@ on:
     branches:
       - master
   workflow_dispatch:
+  # the generator calls this after it pushes the meta, because a push made with
+  # GITHUB_TOKEN does not raise a workflow event
+  workflow_call:
 
 permissions:
   # actions-gh-pages pushes the built site to the gh-pages branch
@@ -22,6 +25,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          # when this runs as a called workflow the commit is the one that
+          # triggered the caller, which predates the meta the generator pushed,
+          # so always build the current tip of master
+          ref: master
 
       - name: Assemble site
         run: |
