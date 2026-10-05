@@ -33,6 +33,10 @@ jobs:
           for entry in * .[^.]*; do
             case "$entry" in
               static|.github) continue ;;
+              # the checkout's own repo must stay put: moving it into the
+              # output makes git treat meta/v1 as a nested repository
+              # (mode 160000) and drop its contents from the site
+              .git) continue ;;
             esac
             mv "$entry" "$RUNNER_TEMP/_site/meta/v1/"
           done
