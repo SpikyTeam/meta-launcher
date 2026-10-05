@@ -1,0 +1,75 @@
+name: Generate meta
+
+on:
+  schedule:
+    # daily, off the top of the hour to avoid the scheduler congestion
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  # the generated meta is committed back to this repository, which in turn
+  # triggers the "Build Pages" workflow
+  contents: write
+
+concurrency:
+  group: meta
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the generator
+        uses: actions/checkout@v6
+        with:
+          repository: SpikyTeam/meta
+          path: generator
+
+      - name: Check out the launcher meta
+        uses: actions/checkout@v6
+        with:
+          path: launcher
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install the generator
+        run: pip install "pydantic<2" cachecontrol requests filelock packaging
+
+      - name: Clone the upstream cache
+        run: git clone https://github.com/SpikyTeam/meta-upstream.git upstream
+
+      - name: Generate the meta tree
+        env:
+          META_UPSTREAM_DIR: upstream
+          META_LAUNCHER_DIR: launcher
+          META_CACHE_DIR: caches
+          # the commit and the push are done below with GITHUB_TOKEN, which only
+          # has access to this repository
+          DEPLOY_TO_GIT: "false"
+        run: |
+          set -euo pipefail
+          # index.py treats every entry in the meta root as a package and reads
+          # <entry>/package.json from it, so the site's own tree has to be out of
+          # the way. None of this is staged, it just must not be indexed.
+          rm -rf launcher/static launcher/.github launcher/.gitattributes
+          cd generator
+          ./update.sh
+
+      - name: Commit the generated meta
+        run: |
+          set -euo pipefail
+          cd launcher
+          git config user.name "SpikyTeam Meta Bot"
+          git config user.email "meta-bot@spiky.team"
+          # only the meta tree, never the static site tree
+          git add index.json com.* net.* org.*
+          if git diff --cached --quiet; then
+            echo "meta is already up to date"
+            exit 0
+          fi
+          git commit -m "Update $(date -I)"
+          git push origin HEAD:master
