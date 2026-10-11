@@ -130,8 +130,6 @@
             padding: 20px 24px;
             margin-bottom: 12px;
             text-align: left;
-            text-decoration: none;
-            color: inherit;
             transition: border-color .15s;
         }
         .release-card:hover { border-color: var(--green); }
@@ -165,10 +163,19 @@
         .release-card .body table { width: 100%; border-collapse: collapse; margin: 8px 0; }
         .release-card .body th, .release-card .body td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
         .release-card .body a { color: var(--green-light); }
-        .release-card .body h1, .release-card .body h2, .release-card .body h3 { color: var(--text); margin: 12px 0 6px; }
-        .release-card .body ul, .release-card .body ol { margin: 6px 0 6px 20px; }
-        .release-card .body code { background: #333; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
-        .release-card .body a { color: var(--green-light) !important; }
+        .release-card .github-btn {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 6px 16px;
+            background: var(--green);
+            color: #fff;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background .15s;
+        }
+        .release-card .github-btn:hover { background: var(--green-dark); }
         .download-card .btn-sm { color: #fff !important; }
 
         .github-link {
@@ -300,11 +307,12 @@
                     const date = new Date(r.published_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
                     const body = r.body ? marked.parse(r.body) : '<p>Без описания</p>';
                     return `
-                        <a class="release-card" href="${r.html_url}" target="_blank" rel="noopener">
+                        <div class="release-card">
                             <h3>${r.name}</h3>
                             <div class="date">${date}</div>
                             <div class="body">${body}</div>
-                        </a>
+                            <a class="github-btn" href="${r.html_url}" target="_blank" rel="noopener">Открыть на GitHub</a>
+                        </div>
                     `;
                 }).join('');
             } catch (e) {
