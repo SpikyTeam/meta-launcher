@@ -2,6 +2,11 @@
     "formatVersion": 1,
     "packages": [
         {
+            "name": "Ely.by Authlib",
+            "sha256": "80702d3a701bd0e344398e5af35023cf4fdd30f6c302e1b628a8c7842bb7b154",
+            "uid": "by.ely.authlib"
+        },
+        {
             "name": "Java Runtimes",
             "sha256": "fa74c0bb2cbbaebe935a3fb255a332ec4afd5918d6327212b23a2b3cd382fa84",
             "uid": "com.azul.java"
@@ -15,6 +20,11 @@
             "name": "LiteLoader",
             "sha256": "21ed39d05d19449287bb3dbc19fd395d4fa12aefb3f0fe1846e008f28e6e4d95",
             "uid": "com.mumfrey.liteloader"
+        },
+        {
+            "name": "authlib-injector",
+            "sha256": "36aa4d9d760252bf58d5109388983c92f602713d32d000c3fa29c741c07c3e2c",
+            "uid": "moe.yushi.authlibinjector"
         },
         {
             "name": "Java Runtimes",
@@ -48,7 +58,7 @@
         },
         {
             "name": "NeoForge",
-            "sha256": "2dbfbed19e263fd9c3aab261b741f372a041c9e11c06b941216de1422c7b8094",
+            "sha256": "efab2b37cb7a61f3e2df8fd51542e06d08f8a90dc959b303612b8cd99831d870",
             "uid": "net.neoforged"
         },
         {
