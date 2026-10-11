@@ -69,10 +69,18 @@
             width: 100%;
             max-width: 800px;
         }
-        .download-section h2 {
+        .download-section > h2 {
             font-size: 1.4rem;
-            margin-bottom: 16px;
+            margin-bottom: 24px;
             color: var(--text);
+        }
+        .platform-group { margin-bottom: 28px; }
+        .platform-group h3 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .download-cards {
             display: grid;
@@ -180,7 +188,7 @@
 
     <div class="download-section">
         <h2>Скачать последнюю версию</h2>
-        <div class="download-cards" id="download-cards"><p class="loading">Загрузка...</p></div>
+        <div id="download-cards"><p class="loading">Загрузка...</p></div>
     </div>
 
     <div class="releases">
@@ -234,24 +242,29 @@
                 const release = await res.json();
                 const assets = mapAssets(release.assets);
 
-                const order = ['windows-setup', 'windows-portable', 'linux-appimage', 'linux-portable'];
+                const platforms = [
+                    { label: 'Windows', keys: ['windows-setup', 'windows-portable'] },
+                    { label: 'Linux', keys: ['linux-appimage', 'linux-portable'] },
+                ];
 
-                const cards = order.map(key => {
-                    const asset = assets[key];
-                    const pat = assetPatterns.find(p => p.key === key);
-                    if (!asset) return '';
-                    return `
-                        <div class="download-card">
-                            <img src="favicon.svg" alt="SpikyMC" style="width:48px;height:48px;margin-bottom:12px;">
-                            <div class="os">${pat.label}</div>
-                            <div class="name">${pat.name}</div>
-                            <div class="size">${formatSize(asset.size)}</div>
-                            <a class="btn-sm" href="${asset.browser_download_url}" target="_blank" rel="noopener">Скачать</a>
-                        </div>
-                    `;
+                const html = platforms.map(p => {
+                    const cards = p.keys.map(key => {
+                        const asset = assets[key];
+                        const pat = assetPatterns.find(pp => pp.key === key);
+                        if (!asset) return '';
+                        return `
+                            <div class="download-card">
+                                <div class="os">${pat.label}</div>
+                                <div class="name">${pat.name}</div>
+                                <div class="size">${formatSize(asset.size)}</div>
+                                <a class="btn-sm" href="${asset.browser_download_url}" target="_blank" rel="noopener">Скачать</a>
+                            </div>
+                        `;
+                    }).join('');
+                    return `<div class="platform-group"><h3>${p.label}</h3><div class="download-cards">${cards}</div></div>`;
                 }).join('');
 
-                container.innerHTML = cards || '<p class="loading">Нет доступных загрузок</p>';
+                container.innerHTML = html || '<p class="loading">Нет доступных загрузок</p>';
             } catch (e) {
                 container.innerHTML = '<p class="loading">Не удалось загрузить</p>';
             }
