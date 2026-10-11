@@ -270,6 +270,12 @@
             }
         }
 
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         async function loadReleases() {
             const list = document.getElementById('releases-list');
             try {
@@ -282,10 +288,10 @@
                 }
                 list.innerHTML = releases.map(r => {
                     const date = new Date(r.published_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-                    const body = r.body ? marked.parse(r.body) : '<p>Без описания</p>';
+                    const body = r.body ? marked.parse(escapeHtml(r.body)) : '<p>Без описания</p>';
                     return `
                         <a class="release-card" href="${r.html_url}" target="_blank" rel="noopener">
-                            <h3>${r.name}</h3>
+                            <h3>${escapeHtml(r.name)}</h3>
                             <div class="date">${date}</div>
                             <div class="body">${body}</div>
                         </a>
