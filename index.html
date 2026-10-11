@@ -270,14 +270,16 @@
                     { label: 'Linux', keys: ['linux-appimage', 'linux-portable'] },
                 ];
 
+                const osIcons = { Windows: 'windows.svg', Linux: 'linux.svg' };
                 const html = platforms.map(p => {
+                    const icon = osIcons[p.label];
                     const cards = p.keys.map(key => {
                         const asset = assets[key];
                         const pat = assetPatterns.find(pp => pp.key === key);
                         if (!asset) return '';
                         return `
                             <div class="download-card">
-                                <div class="os">${pat.label}</div>
+                                <img src="${icon}" alt="${p.label}" style="width:48px;height:48px;margin-bottom:12px;">
                                 <div class="name">${pat.name}</div>
                                 <div class="size">${formatSize(asset.size)}</div>
                                 <a class="btn-sm" href="${asset.browser_download_url}" target="_blank" rel="noopener">Скачать</a>
