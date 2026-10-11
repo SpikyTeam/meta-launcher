@@ -114,13 +114,18 @@
             color: var(--text);
         }
         .release-card {
+            display: block;
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 20px 24px;
             margin-bottom: 12px;
             text-align: left;
+            text-decoration: none;
+            color: inherit;
+            transition: border-color .15s;
         }
+        .release-card:hover { border-color: var(--green); }
         .release-card h3 {
             font-size: 1.1rem;
             color: var(--green-light);
@@ -264,11 +269,11 @@
                     const date = new Date(r.published_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
                     const body = r.body ? marked.parse(r.body) : '<p>Без описания</p>';
                     return `
-                        <div class="release-card">
+                        <a class="release-card" href="${r.html_url}" target="_blank" rel="noopener">
                             <h3>${r.name}</h3>
                             <div class="date">${date}</div>
                             <div class="body">${body}</div>
-                        </div>
+                        </a>
                     `;
                 }).join('');
             } catch (e) {
