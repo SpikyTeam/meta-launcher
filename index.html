@@ -7,6 +7,7 @@
     <meta name="description" content="SpikyMC — бесплатный и открытый лаунчер для Minecraft">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="preconnect" href="https://api.github.com">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
             --green: #52A535;
@@ -62,6 +63,46 @@
         .btn:hover { background: var(--green-dark); transform: translateY(-2px); }
         .btn svg { width: 20px; height: 20px; vertical-align: middle; margin-right: 8px; }
 
+        .download-section {
+            margin-top: 48px;
+            width: 100%;
+            max-width: 800px;
+        }
+        .download-section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+        .download-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+        .download-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: border-color .15s, transform .15s;
+        }
+        .download-card:hover { border-color: var(--green); transform: translateY(-2px); }
+        .download-card .os { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+        .download-card .name { font-size: 1.1rem; font-weight: 700; color: var(--green-light); margin-bottom: 6px; }
+        .download-card .size { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; }
+        .download-card .btn-sm {
+            display: inline-block;
+            padding: 8px 20px;
+            background: var(--green);
+            color: #fff;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: background .15s;
+        }
+        .download-card .btn-sm:hover { background: var(--green-dark); }
+
         .releases {
             margin-top: 48px;
             width: 100%;
@@ -94,25 +135,11 @@
             font-size: 0.9rem;
             color: var(--text);
             line-height: 1.6;
-            white-space: pre-wrap;
         }
-        .release-card .assets {
-            margin-top: 12px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .release-card .asset {
-            display: inline-block;
-            padding: 6px 12px;
-            background: #333;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: background .15s;
-        }
-        .release-card .asset:hover { background: #444; color: var(--text); }
+        .release-card .body h1, .release-card .body h2, .release-card .body h3 { color: var(--text); margin: 12px 0 6px; }
+        .release-card .body ul, .release-card .body ol { margin: 6px 0 6px 20px; }
+        .release-card .body code { background: #333; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
+        .release-card .body a { color: var(--green-light); }
 
         .github-link {
             margin-top: 32px;
@@ -143,10 +170,11 @@
     </div>
     <h1>Spiky<span>MC</span></h1>
     <p class="tagline">Бесплатный и открытый лаунчер для Minecraft. Управляйте несколькими установками, модами и Java в одном месте.</p>
-    <a class="btn" href="https://github.com/SpikyTeam/SpikyMC/releases" target="_blank" rel="noopener">
-        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
-        Скачать
-    </a>
+
+    <div class="download-section">
+        <h2>Скачать последнюю версию</h2>
+        <div class="download-cards" id="download-cards"><p class="loading">Загрузка...</p></div>
+    </div>
 
     <div class="releases">
         <h2>Последние релизы</h2>
@@ -158,11 +186,76 @@
     </a>
 
     <script>
+        function getOS() {
+            const ua = navigator.userAgent.toLowerCase();
+            if (ua.includes('win')) return 'windows';
+            if (ua.includes('linux') || ua.includes('ubuntu') || ua.includes('debian')) return 'linux';
+            if (ua.includes('mac')) return 'macos';
+            return 'unknown';
+        }
+
+        function formatSize(bytes) {
+            if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + ' GB';
+            if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB';
+            return (bytes / 1024).toFixed(2) + ' KB';
+        }
+
+        const assetPatterns = [
+            { key: 'windows-setup', label: 'Windows', name: 'Установщик (.exe)', match: (n) => n.endsWith('.exe') },
+            { key: 'windows-portable', label: 'Windows', name: 'Portable (.zip)', match: (n) => n.includes('Portable') && n.endsWith('.zip') },
+            { key: 'linux-appimage', label: 'Linux', name: 'AppImage', match: (n) => n.endsWith('.AppImage') },
+            { key: 'linux-portable', label: 'Linux', name: 'Portable (.tar.gz)', match: (n) => n.endsWith('.tar.gz') },
+        ];
+
+        function mapAssets(assets) {
+            const result = {};
+            for (const asset of assets) {
+                for (const pat of assetPatterns) {
+                    if (!result[pat.key] && pat.match(asset.name)) {
+                        result[pat.key] = asset;
+                    }
+                }
+            }
+            return result;
+        }
+
+        async function loadLatestRelease() {
+            const container = document.getElementById('download-cards');
+            try {
+                const res = await fetch('https://api.github.com/repos/SpikyTeam/SpikyMC/releases/latest');
+                if (!res.ok) throw new Error('Failed');
+                const release = await res.json();
+                const assets = mapAssets(release.assets);
+
+                const order = getOS() === 'windows'
+                    ? ['windows-setup', 'windows-portable', 'linux-appimage', 'linux-portable']
+                    : ['linux-appimage', 'linux-portable', 'windows-setup', 'windows-portable'];
+
+                const cards = order.map(key => {
+                    const asset = assets[key];
+                    const pat = assetPatterns.find(p => p.key === key);
+                    if (!asset) return '';
+                    return `
+                        <div class="download-card">
+                            <div class="os">${pat.label}</div>
+                            <div class="name">${pat.name}</div>
+                            <div class="size">${formatSize(asset.size)}</div>
+                            <a class="btn-sm" href="${asset.browser_download_url}" target="_blank" rel="noopener">Скачать</a>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = cards || '<p class="loading">Нет доступных загрузок</p>';
+            } catch (e) {
+                container.innerHTML = '<p class="loading">Не удалось загрузить</p>';
+            }
+        }
+
         async function loadReleases() {
             const list = document.getElementById('releases-list');
             try {
                 const res = await fetch('https://api.github.com/repos/SpikyTeam/SpikyMC/releases?per_page=5');
-                if (!res.ok) throw new Error('Failed to fetch');
+                if (!res.ok) throw new Error('Failed');
                 const releases = await res.json();
                 if (releases.length === 0) {
                     list.innerHTML = '<p class="loading">Релизов пока нет</p>';
@@ -170,16 +263,12 @@
                 }
                 list.innerHTML = releases.map(r => {
                     const date = new Date(r.published_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-                    const assets = r.assets.map(a =>
-                        `<a class="asset" href="${a.browser_download_url}" target="_blank" rel="noopener">${a.name}</a>`
-                    ).join('');
-                    const body = r.body ? r.body.substring(0, 800) : 'Без описания';
+                    const body = r.body ? marked.parse(r.body) : '<p>Без описания</p>';
                     return `
                         <div class="release-card">
                             <h3>${r.name}</h3>
                             <div class="date">${date}</div>
                             <div class="body">${body}</div>
-                            ${assets ? `<div class="assets">${assets}</div>` : ''}
                         </div>
                     `;
                 }).join('');
@@ -187,6 +276,8 @@
                 list.innerHTML = '<p class="loading">Не удалось загрузить релизы</p>';
             }
         }
+
+        loadLatestRelease();
         loadReleases();
     </script>
 </body>
