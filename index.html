@@ -227,9 +227,7 @@
                 const release = await res.json();
                 const assets = mapAssets(release.assets);
 
-                const order = getOS() === 'windows'
-                    ? ['windows-setup', 'windows-portable', 'linux-appimage', 'linux-portable']
-                    : ['linux-appimage', 'linux-portable', 'windows-setup', 'windows-portable'];
+                const order = ['windows-setup', 'windows-portable', 'linux-appimage', 'linux-portable'];
 
                 const cards = order.map(key => {
                     const asset = assets[key];
@@ -237,6 +235,7 @@
                     if (!asset) return '';
                     return `
                         <div class="download-card">
+                            <img src="favicon.svg" alt="SpikyMC" style="width:48px;height:48px;margin-bottom:12px;">
                             <div class="os">${pat.label}</div>
                             <div class="name">${pat.name}</div>
                             <div class="size">${formatSize(asset.size)}</div>
