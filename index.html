@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SpikyMC - Minecraft Launcher</title>
-    <meta name="description" content="SpikyMC — бесплатный и открытый лаунчер для Minecraft">
+    <meta name="description" content="SpikyMC — free and open-source Minecraft launcher">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="preconnect" href="https://api.github.com">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -225,15 +225,15 @@
         </svg>
     </div>
     <h1>Spiky<span>MC</span></h1>
-    <p class="tagline">Бесплатный и открытый лаунчер для Minecraft. Управляйте несколькими установками, модами и Java в одном месте.</p>
+    <p class="tagline">Free and open-source Minecraft launcher. Manage multiple installations, mods, and Java in one place.</p>
 
     <div class="download-section">
-        <h2>Скачать последнюю версию</h2>
+        <h2>Download the latest version</h2>
         <div id="download-cards"><p class="loading">Загрузка...</p></div>
     </div>
 
     <div class="releases">
-        <h2>Последние релизы</h2>
+        <h2>Latest releases</h2>
         <div id="releases-list"><p class="loading">Загрузка...</p></div>
     </div>
 
@@ -290,18 +290,24 @@
                 ];
 
                 const osIcons = { Windows: 'icon-windows', Linux: 'icon-linux' };
+                const platformNames = { 'Windows': 'Windows', 'Linux': 'Linux' };
+                const assetLabels = {
+                    'windows-setup': 'Installer (.exe)',
+                    'windows-portable': 'Portable (.zip)',
+                    'linux-appimage': 'AppImage',
+                    'linux-portable': 'Portable (.tar.gz)'
+                };
                 const html = platforms.map(p => {
                     const icon = osIcons[p.label];
                     const cards = p.keys.map(key => {
                         const asset = assets[key];
-                        const pat = assetPatterns.find(pp => pp.key === key);
                         if (!asset) return '';
                         return `
                             <div class="download-card">
                                 <svg class="os-icon"><use href="#${icon}"/></svg>
-                                <div class="name">${pat.name}</div>
+                                <div class="name">${assetLabels[key]}</div>
                                 <div class="size">${formatSize(asset.size)}</div>
-                                <a class="btn-sm" href="${asset.browser_download_url}" target="_blank" rel="noopener">Скачать</a>
+                                <a class="btn-sm" href="${asset.browser_download_url}" target="_blank" rel="noopener">Download</a>
                             </div>
                         `;
                     }).join('');
@@ -325,14 +331,14 @@
                     return;
                 }
                 list.innerHTML = releases.map(r => {
-                    const date = new Date(r.published_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-                    const body = r.body ? marked.parse(r.body) : '<p>Без описания</p>';
+                    const date = new Date(r.published_at).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+                    const body = r.body ? marked.parse(r.body) : '<p>No description</p>';
                     return `
                         <div class="release-card">
                             <h3>${r.name}</h3>
                             <div class="date">${date}</div>
                             <div class="body">${body}</div>
-                            <a class="github-btn" href="${r.html_url}" target="_blank" rel="noopener">Открыть на GitHub</a>
+                            <a class="github-btn" href="${r.html_url}" target="_blank" rel="noopener">View on GitHub</a>
                         </div>
                     `;
                 }).join('');
