@@ -1,79 +1,940 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SpikyMC — Minecraft launcher</title>
+<title>SpikyMC — лаунчер для Minecraft</title>
+<meta name="description" content="SpikyMC — кастомный лаунчер для Minecraft, позволяющий легко управлять несколькими установками Minecraft одновременно. Скачать для Windows и Linux.">
+<link rel="canonical" href="https://mc.spiky.team/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SpikyMC">
+<meta property="og:title" content="SpikyMC — лаунчер для Minecraft">
+<meta property="og:description" content="Кастомный лаунчер для Minecraft, позволяющий легко управлять несколькими установками Minecraft одновременно.">
+<meta property="og:url" content="https://mc.spiky.team/">
+<meta name="theme-color" content="#1a1a1a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%2352A535'/%3E%3Ccircle cx='16' cy='19' r='5.4' fill='%2380D05D'/%3E%3Ccircle cx='32' cy='19' r='5.4' fill='%2380D05D'/%3E%3Cpath d='M16.4 30.1c3 .3 5.3 1.4 7.6 1.4s4.6-1.1 7.6-1.4c1.9 2.7 3.9 3.9 3.9 3.9-2.3 1.6-7.4 2.4-11.5 2.4s-9.2-.8-11.5-2.4c0 0 2-1.2 3.9-3.9z' fill='%2380D05D'/%3E%3C/svg%3E">
 <style>
-  :root { --green: #52A535; --green-dark: #2A641C; --green-light: #80D05D; }
+  :root {
+    --green: #52A535;
+    --green-dark: #2A641C;
+    --green-light: #80D05D;
+    --bg: #1a1a1a;
+    --bg-card: #242424;
+    --bg-card-hover: #2a2a2a;
+    --border: #333;
+    --border-hover: #444;
+    --text: #eee;
+    --text-muted: #999;
+    --text-dim: #666;
+    --max-width: 760px;
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
   body {
     font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background: #1a1a1a; color: #eee; min-height: 100vh;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    text-align: center; padding: 40px 20px;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
   }
-  .logo { margin-bottom: 24px; }
-  .logo svg { width: 120px; height: 120px; }
-  h1 { font-size: 2.6rem; font-weight: 800; letter-spacing: 1px; color: #fff; }
-  h1 span { color: var(--green-light); }
-  .tagline { margin-top: 8px; color: #aaa; font-size: 1.05rem; }
-  .projects { margin-top: 36px; display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 380px; }
-  .card {
-    display: block; background: #262626; border: 1px solid #353535; border-radius: 12px;
-    padding: 16px 20px; text-decoration: none; color: #eee; transition: transform .15s, border-color .15s, background .15s;
+
+  a { color: var(--green-light); }
+
+  /* ── Navigation ── */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(26, 26, 26, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
   }
-  .card:hover { transform: translateY(-2px); border-color: var(--green); background: #2c2c2c; }
-  .card .name { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; }
-  .card .name svg { width: 24px; height: 24px; fill: currentColor; }
-  .card.github {
-    background: linear-gradient(135deg, var(--green-dark), #1f1f1f 65%);
-    border-color: var(--green);
-    padding: 22px 20px;
+
+  .nav-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
   }
-  .card.github .name { color: var(--green-light); font-size: 1.25rem; }
-  .card.github .sub { margin-top: 6px; font-size: .85rem; color: #bbb; }
-  .badge {
-    display: inline-block; margin-top: 12px; padding: 4px 12px; border-radius: 999px;
-    background: var(--green); color: #fff; font-size: .72rem; font-weight: 700; letter-spacing: .5px;
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 700;
+    font-size: 1.05rem;
+    white-space: nowrap;
+  }
+
+  .nav-brand svg {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    flex: none;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    display: block;
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .nav-links a:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  /* ── Layout ── */
+  .container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  section { padding: 52px 0; }
+
+  /* ── Hero ── */
+  .hero {
+    text-align: center;
+    padding: 68px 0 52px;
+  }
+
+  .hero-icon {
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 24px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(82, 165, 53, 0.25);
+  }
+
+  .hero-icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .hero h1 {
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #fff;
+  }
+
+  .hero h1 span { color: var(--green-light); }
+
+  .hero p {
+    margin: 12px auto 0;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 480px;
+  }
+
+  .hero-meta {
+    margin-top: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  .chip--version {
+    border-color: rgba(82, 165, 53, 0.45);
+    background: rgba(82, 165, 53, 0.14);
+    color: var(--green-light);
+  }
+
+  /* ── Section titles ── */
+  .section-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+
+  .section-subtitle {
+    color: var(--text-dim);
+    font-size: 0.92rem;
+    margin-bottom: 24px;
+  }
+
+  /* ── Download grid ── */
+  .platform-group + .platform-group { margin-top: 28px; }
+
+  .platform-group-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+
+  .platform-group-title::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .download-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .download-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+  }
+
+  .download-card:hover {
+    border-color: var(--green);
+    background: var(--bg-card-hover);
+    transform: translateY(-2px);
+  }
+
+  .download-card .platform {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .download-card .build-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--green-light);
+    margin-bottom: 2px;
+  }
+
+  .download-card .file-size {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .download-card .btn {
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    background: var(--green);
+    color: #fff;
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .download-card .btn:hover { background: var(--green-dark); }
+  .download-card .btn:active { transform: scale(0.97); }
+
+  .download-card .btn svg {
+    width: 16px;
+    height: 16px;
+    flex: none;
+  }
+
+  /* ── Releases ── */
+  .release-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .release-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .release-card:hover {
+    border-color: var(--border-hover);
+    background: var(--bg-card-hover);
+  }
+
+  .release-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .release-version {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .release-date {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+
+  .release-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .release-tag--stable {
+    background: rgba(82, 165, 53, 0.18);
+    color: var(--green-light);
+    border: 1px solid rgba(82, 165, 53, 0.35);
+  }
+
+  .release-tag--latest {
+    background: rgba(82, 165, 53, 0.28);
+    color: #fff;
+    border: 1px solid var(--green);
+  }
+
+  .release-tag--prerelease {
+    background: rgba(230, 165, 53, 0.15);
+    color: #E6A535;
+    border: 1px solid rgba(230, 165, 53, 0.35);
+  }
+
+  .release-body {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+
+  .release-body ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .release-body ul li {
+    position: relative;
+    padding-left: 18px;
+    margin-bottom: 4px;
+  }
+
+  .release-body ul li::before {
+    content: "\2022";
+    position: absolute;
+    left: 4px;
+    color: var(--green);
+    font-weight: 700;
+  }
+
+  .release-body p { margin: 0; }
+  .release-body p + p { margin-top: 8px; }
+  .release-body p + .release-group,
+  .release-body .release-group + .release-group { margin-top: 12px; }
+  .release-body strong { color: var(--text); }
+
+  .release-card .btn {
+    margin-top: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--green-light);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid var(--green);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .release-card .btn:hover {
+    background: var(--green);
+    color: #fff;
+  }
+
+  .release-card .btn svg {
+    width: 16px;
+    height: 16px;
+    flex: none;
+  }
+
+  .status {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 0;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+  }
+
+  .footer a {
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .footer a:hover { color: var(--green-light); }
+  .footer p + p { margin-top: 6px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 620px) {
+    .download-grid { grid-template-columns: 1fr; }
+
+    .hero h1 { font-size: 1.9rem; }
+    .section-title { font-size: 1.35rem; }
+
+    section { padding: 38px 0; }
+
+    .hero {
+      padding: 48px 0 38px;
+    }
+
+    .nav-links a {
+      padding: 6px 8px;
+      font-size: 0.85rem;
+    }
+
+    .release-card { padding: 20px; }
+  }
+
+  @media (max-width: 420px) {
+    .nav-inner { flex-wrap: wrap; }
+    .hero-icon { width: 80px; height: 80px; }
   }
 </style>
 </head>
 <body>
-  <div class="logo">
-    <svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="512" height="512" fill="#52A535"/>
-      <path d="M225.617 210.102C225.617 244.399 197.721 272.203 163.309 272.203C128.896 272.203 101 244.399 101 210.102C101 175.804 128.896 148 163.309 148C197.721 148 225.617 175.804 225.617 210.102Z" fill="#80D05D"/>
-      <path d="M410 210.102C410 244.399 382.104 272.203 347.691 272.203C313.279 272.203 285.383 244.399 285.383 210.102C285.383 175.804 313.279 148 347.691 148C382.104 148 410 175.804 410 210.102Z" fill="#80D05D"/>
-      <path d="M167.124 326.701C167.124 356.484 193.827 376.762 224.982 381.832C237.062 385 259.315 386.641 286.654 381.832C308.272 378.029 343.877 358.385 343.877 326.701C343.877 299.402 317.809 267.768 286.654 277.273C255.5 286.778 255.5 286.778 224.982 277.273C194.463 267.768 164.58 298.818 167.124 326.701Z" fill="#80D05D"/>
-      <path d="M225.617 195.102C225.617 229.399 197.721 257.203 163.309 257.203C128.896 257.203 101 229.399 101 195.102C101 160.804 128.896 133 163.309 133C197.721 133 225.617 160.804 225.617 195.102Z" fill="#2A641C"/>
-      <path d="M410 195.102C410 229.399 382.104 257.203 347.691 257.203C313.279 257.203 285.383 229.399 285.383 195.102C285.383 160.804 313.279 133 347.691 133C382.104 133 410 160.804 410 195.102Z" fill="#2A641C"/>
-      <path d="M167.124 311.701C167.124 341.484 193.827 361.762 224.982 366.832C237.062 370 259.315 371.641 286.654 366.832C308.272 363.029 343.877 343.385 343.877 311.701C343.877 284.402 317.809 252.768 286.654 262.273C255.5 271.778 255.5 271.778 224.982 262.273C194.463 252.768 164.58 283.818 167.124 311.701Z" fill="#2A641C"/>
-      <path d="M225.617 200.102C225.617 234.399 197.721 262.203 163.309 262.203C128.896 262.203 101 234.399 101 200.102C101 165.804 128.896 138 163.309 138C197.721 138 225.617 165.804 225.617 200.102Z" fill="black"/>
-      <path d="M410 200.102C410 234.399 382.104 262.203 347.691 262.203C313.279 262.203 285.383 234.399 285.383 200.102C285.383 165.804 313.279 138 347.691 138C382.104 138 410 165.804 410 200.102Z" fill="black"/>
-      <path d="M167.124 316.701C167.124 346.484 193.827 366.762 224.982 371.832C237.062 375 259.315 376.641 286.654 371.832C308.272 368.029 343.877 348.385 343.877 316.701C343.877 289.402 317.809 257.768 286.654 267.273C255.5 276.778 255.5 276.778 224.982 267.273C194.463 257.768 164.58 288.818 167.124 316.701Z" fill="black"/>
-    </svg>
-  </div>
-  <h1>Spiky<span>MC</span></h1>
-  <div class="tagline">Free &amp; open-source Minecraft launcher</div>
-  <div class="projects">
-    <a class="card github" href="https://github.com/SpikyTeam/SpikyMC">
-      <div class="name">
-        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-          <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="/">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="44" height="44" transform="translate(2 2)" fill="#52A535"/>
+          <path d="M21.389 20.0556C21.389 23.0031 18.9916 25.3925 16.0343 25.3925C13.077 25.3925 10.6797 23.0031 10.6797 20.0556C10.6797 17.1081 13.077 14.7188 16.0343 14.7188C18.9916 14.7188 21.389 17.1081 21.389 20.0556Z" fill="#80D05D"/>
+          <path d="M37.2344 20.0556C37.2344 23.0031 34.837 25.3925 31.8797 25.3925C28.9224 25.3925 26.5251 23.0031 26.5251 20.0556C26.5251 17.1081 28.9224 14.7188 31.8797 14.7188C34.837 14.7188 37.2344 17.1081 37.2344 20.0556Z" fill="#80D05D"/>
+          <path d="M16.3622 30.0758C16.3622 32.6353 18.657 34.378 21.3344 34.8136C22.3725 35.0859 24.2849 35.227 26.6344 34.8136C28.4921 34.4869 31.5519 32.7987 31.5519 30.0758C31.5519 27.7299 29.3117 25.0113 26.6344 25.8281C23.957 26.645 23.957 26.645 21.3344 25.8281C18.7117 25.0113 16.1436 27.6797 16.3622 30.0758Z" fill="#80D05D"/>
+          <path d="M21.389 18.7665C21.389 21.714 18.9916 24.1034 16.0343 24.1034C13.077 24.1034 10.6797 21.714 10.6797 18.7665C10.6797 15.8191 13.077 13.4297 16.0343 13.4297C18.9916 13.4297 21.389 15.8191 21.389 18.7665Z" fill="#2A641C"/>
+          <path d="M37.2344 18.7665C37.2344 21.714 34.837 24.1034 31.8797 24.1034C28.9224 24.1034 26.5251 21.714 26.5251 18.7665C26.5251 15.8191 28.9224 13.4297 31.8797 13.4297C34.837 13.4297 37.2344 15.8191 37.2344 18.7665Z" fill="#2A641C"/>
+          <path d="M16.3622 28.7868C16.3622 31.3463 18.657 33.0889 21.3344 33.5246C22.3725 33.7969 24.2849 33.9379 26.6344 33.5246C28.4921 33.1978 31.5519 31.5096 31.5519 28.7868C31.5519 26.4408 29.3117 23.7222 26.6344 24.5391C23.957 25.3559 23.957 25.3559 21.3344 24.5391C18.7117 23.7222 16.1436 26.3906 16.3622 28.7868Z" fill="#2A641C"/>
+          <path d="M21.389 19.1962C21.389 22.1437 18.9916 24.5331 16.0343 24.5331C13.077 24.5331 10.6797 22.1437 10.6797 19.1962C10.6797 16.2488 13.077 13.8594 16.0343 13.8594C18.9916 13.8594 21.389 16.2488 21.389 19.1962Z" fill="black"/>
+          <path d="M37.2344 19.1962C37.2344 22.1437 34.837 24.5331 31.8797 24.5331C28.9224 24.5331 26.5251 22.1437 26.5251 19.1962C26.5251 16.2488 28.9224 13.8594 31.8797 13.8594C34.837 13.8594 37.2344 16.2488 37.2344 19.1962Z" fill="black"/>
+          <path d="M16.3622 29.2165C16.3622 31.776 18.657 33.5186 21.3344 33.9543C22.3725 34.2266 24.2849 34.3676 26.6344 33.9543C28.4921 33.6275 31.5519 31.9393 31.5519 29.2165C31.5519 26.8705 29.3117 24.1519 26.6344 24.9687C23.957 25.7856 23.957 25.7856 21.3344 24.9687C18.7117 24.1519 16.1436 26.8203 16.3622 29.2165Z" fill="black"/>
         </svg>
-        View on GitHub
+        SpikyMC
+      </a>
+      <ul class="nav-links">
+        <li><a href="https://github.com/SpikyTeam/SpikyMC">GitHub</a></li>
+        <li><a href="https://mc.spiky.team/wiki/">Wiki</a></li>
+        <li><a href="https://spiky.team">Spiky Team</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-icon">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SpikyMC">
+          <rect width="44" height="44" transform="translate(2 2)" fill="#52A535"/>
+          <path d="M21.389 20.0556C21.389 23.0031 18.9916 25.3925 16.0343 25.3925C13.077 25.3925 10.6797 23.0031 10.6797 20.0556C10.6797 17.1081 13.077 14.7188 16.0343 14.7188C18.9916 14.7188 21.389 17.1081 21.389 20.0556Z" fill="#80D05D"/>
+          <path d="M37.2344 20.0556C37.2344 23.0031 34.837 25.3925 31.8797 25.3925C28.9224 25.3925 26.5251 23.0031 26.5251 20.0556C26.5251 17.1081 28.9224 14.7188 31.8797 14.7188C34.837 14.7188 37.2344 17.1081 37.2344 20.0556Z" fill="#80D05D"/>
+          <path d="M16.3622 30.0758C16.3622 32.6353 18.657 34.378 21.3344 34.8136C22.3725 35.0859 24.2849 35.227 26.6344 34.8136C28.4921 34.4869 31.5519 32.7987 31.5519 30.0758C31.5519 27.7299 29.3117 25.0113 26.6344 25.8281C23.957 26.645 23.957 26.645 21.3344 25.8281C18.7117 25.0113 16.1436 27.6797 16.3622 30.0758Z" fill="#80D05D"/>
+          <path d="M21.389 18.7665C21.389 21.714 18.9916 24.1034 16.0343 24.1034C13.077 24.1034 10.6797 21.714 10.6797 18.7665C10.6797 15.8191 13.077 13.4297 16.0343 13.4297C18.9916 13.4297 21.389 15.8191 21.389 18.7665Z" fill="#2A641C"/>
+          <path d="M37.2344 18.7665C37.2344 21.714 34.837 24.1034 31.8797 24.1034C28.9224 24.1034 26.5251 21.714 26.5251 18.7665C26.5251 15.8191 28.9224 13.4297 31.8797 13.4297C34.837 13.4297 37.2344 15.8191 37.2344 18.7665Z" fill="#2A641C"/>
+          <path d="M16.3622 28.7868C16.3622 31.3463 18.657 33.0889 21.3344 33.5246C22.3725 33.7969 24.2849 33.9379 26.6344 33.5246C28.4921 33.1978 31.5519 31.5096 31.5519 28.7868C31.5519 26.4408 29.3117 23.7222 26.6344 24.5391C23.957 25.3559 23.957 25.3559 21.3344 24.5391C18.7117 23.7222 16.1436 26.3906 16.3622 28.7868Z" fill="#2A641C"/>
+          <path d="M21.389 19.1962C21.389 22.1437 18.9916 24.5331 16.0343 24.5331C13.077 24.5331 10.6797 22.1437 10.6797 19.1962C10.6797 16.2488 13.077 13.8594 16.0343 13.8594C18.9916 13.8594 21.389 16.2488 21.389 19.1962Z" fill="black"/>
+          <path d="M37.2344 19.1962C37.2344 22.1437 34.837 24.5331 31.8797 24.5331C28.9224 24.5331 26.5251 22.1437 26.5251 19.1962C26.5251 16.2488 28.9224 13.8594 31.8797 13.8594C34.837 13.8594 37.2344 16.2488 37.2344 19.1962Z" fill="black"/>
+          <path d="M16.3622 29.2165C16.3622 31.776 18.657 33.5186 21.3344 33.9543C22.3725 34.2266 24.2849 34.3676 26.6344 33.9543C28.4921 33.6275 31.5519 31.9393 31.5519 29.2165C31.5519 26.8705 29.3117 24.1519 26.6344 24.9687C23.957 25.7856 23.957 25.7856 21.3344 24.9687C18.7117 24.1519 16.1436 26.8203 16.3622 29.2165Z" fill="black"/>
+        </svg>
       </div>
-      <div class="sub">Source code, issues, releases &amp; downloads</div>
-      <div class="badge">Open Source</div>
-    </a>
-    <a class="card" href="https://github.com/SpikyTeam/SpikyMC/releases">
-      <div class="name">Download launcher</div>
-    </a>
-    <a class="card" href="https://spiky.team/">
-      <div class="name">Spiky Team</div>
-    </a>
-  </div>
+      <h1>Spiky<span>MC</span></h1>
+      <p>Кастомный лаунчер для Minecraft, позволяющий легко управлять несколькими установками Minecraft одновременно.</p>
+      <div class="hero-meta">
+        <span class="chip chip--version" id="hero-version">Версия 1.1.1</span>
+        <span class="chip">Windows &amp; Linux</span>
+        <span class="chip">Открытый исходный код</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download -->
+  <section id="download">
+    <div class="container">
+      <h2 class="section-title">Скачать</h2>
+      <p class="section-subtitle">Сборки последнего релиза. Windows — установщик или portable-архив, Linux — AppImage или portable-архив.</p>
+
+      <!-- Windows -->
+      <div class="platform-group">
+        <h3 class="platform-group-title">Windows</h3>
+        <div class="download-grid">
+          <div class="download-card">
+            <span class="platform">Windows</span>
+            <span class="build-name">Setup</span>
+            <span class="file-size">EXE · 22,8 МБ</span>
+            <a class="btn" data-asset="windows-setup" href="https://github.com/SpikyTeam/SpikyMC/releases/download/1.1.1/SpikyMC-Windows-MinGW-w64-Setup-1.1.1.exe">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Скачать
+            </a>
+          </div>
+          <div class="download-card">
+            <span class="platform">Windows</span>
+            <span class="build-name">Portable</span>
+            <span class="file-size">ZIP · 22,3 МБ</span>
+            <a class="btn" data-asset="windows-portable" href="https://github.com/SpikyTeam/SpikyMC/releases/download/1.1.1/SpikyMC-Windows-MinGW-w64-Portable-1.1.1.zip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Скачать
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Linux -->
+      <div class="platform-group">
+        <h3 class="platform-group-title">Linux</h3>
+        <div class="download-grid">
+          <div class="download-card">
+            <span class="platform">Linux</span>
+            <span class="build-name">AppImage</span>
+            <span class="file-size">AppImage · 90,6 МБ</span>
+            <a class="btn" data-asset="linux-appimage" href="https://github.com/SpikyTeam/SpikyMC/releases/download/1.1.1/SpikyMC-Linux-x86_64.AppImage">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Скачать
+            </a>
+          </div>
+          <div class="download-card">
+            <span class="platform">Linux</span>
+            <span class="build-name">Portable</span>
+            <span class="file-size">tar.gz · 48,3 МБ</span>
+            <a class="btn" data-asset="linux-portable" href="https://github.com/SpikyTeam/SpikyMC/releases/download/1.1.1/SpikyMC-Linux-Qt6-Portable-1.1.1.tar.gz">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Скачать
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Releases -->
+  <section id="releases">
+    <div class="container">
+      <h2 class="section-title">Последние релизы</h2>
+      <p class="section-subtitle">История изменений лаунчера.</p>
+      <div class="release-list" id="release-list">
+
+        <!-- 1.1.1 -->
+        <div class="release-card">
+          <div class="release-header">
+            <span class="release-version">1.1.1</span>
+            <span class="release-date">11 октября 2026</span>
+            <span class="release-tag release-tag--latest">Последний</span>
+          </div>
+          <div class="release-body">
+            <div class="release-group">
+              <p><strong>Исправлено:</strong></p>
+              <ul>
+                <li>Вход через Ely.by по кнопке теперь работает на всех сборках. Ранее не-portable сборки отправили неверный callback, который Ely.by не принимает.</li>
+              </ul>
+            </div>
+          </div>
+          <a class="btn" href="https://github.com/SpikyTeam/SpikyMC/releases/tag/1.1.1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Подробнее
+          </a>
+        </div>
+
+        <!-- 1.1.0 -->
+        <div class="release-card">
+          <div class="release-header">
+            <span class="release-version">1.1.0</span>
+            <span class="release-date">11 октября 2026</span>
+            <span class="release-tag release-tag--stable">Stable</span>
+          </div>
+          <div class="release-body">
+            <div class="release-group">
+              <p><strong>Добавлено:</strong></p>
+              <ul>
+                <li>Аккаунты Ely.by: вход с аккаунтом Ely.by, с кастомными скинами и поддержкой серверов, которые разрешают только Ely.by</li>
+                <li>Патч Ely.by: автоматическая загрузка и применение патча Ely.by (всегда / для Ely.by или оффлайн-аккаунтов / только для аккаунтов Ely.by / никогда)</li>
+              </ul>
+            </div>
+            <div class="release-group">
+              <p><strong>Изменено:</strong></p>
+              <ul>
+                <li>Оффлайн-аккаунты принимают любой никнейм без проверки длины и кодировки и без переключателя «разрешить недопустимые имена»</li>
+              </ul>
+            </div>
+            <div class="release-group">
+              <p><strong>Исправлено:</strong></p>
+              <ul>
+                <li>Локализация</li>
+                <li>Проблемы из предыдущих версий</li>
+              </ul>
+            </div>
+          </div>
+          <a class="btn" href="https://github.com/SpikyTeam/SpikyMC/releases/tag/1.1.0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Подробнее
+          </a>
+        </div>
+
+        <!-- 1.0.0 -->
+        <div class="release-card">
+          <div class="release-header">
+            <span class="release-version">1.0.0</span>
+            <span class="release-date">4 октября 2026</span>
+            <span class="release-tag release-tag--stable">Stable</span>
+          </div>
+          <div class="release-body">
+            <p>Первый стабильный релиз. Все основные функции на месте.</p>
+            <div class="release-group">
+              <p><strong>Добавлено:</strong></p>
+              <ul>
+                <li>Оффлайн-аккаунты</li>
+                <li>Кастомная тема</li>
+                <li>Кастомный набор иконок</li>
+              </ul>
+            </div>
+            <div class="release-group">
+              <p><strong>Исправлено:</strong></p>
+              <ul>
+                <li>Проблемы из предыдущих версий</li>
+              </ul>
+            </div>
+          </div>
+          <a class="btn" href="https://github.com/SpikyTeam/SpikyMC/releases/tag/1.0.0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Подробнее
+          </a>
+        </div>
+
+      </div>
+      <p class="status" id="releases-status" hidden></p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>SpikyMC — форк <a href="https://prismlauncher.org">Prism Launcher</a>, который, в свою очередь, является форком <a href="https://multimc.org">MultiMC</a>.</p>
+      <p>© 2026 <a href="https://spiky.team">Spiky Team</a>. Не одобрено, не связано и не поддерживается проектами Prism Launcher или MultiMC.</p>
+    </div>
+  </footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var API = 'https://api.github.com/repos/SpikyTeam/SpikyMC';
+  var MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+                'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+
+  // Asset name fragments -> card key, in priority order.
+  var ASSETS = [
+    { key: 'windows-setup',       match: /-Setup-.*\.exe$/i },
+    { key: 'windows-portable',    match: /Windows.*-Portable-.*\.zip$/i },
+    { key: 'linux-appimage',      match: /\.AppImage$/i },
+    { key: 'linux-portable',      match: /Linux.*-Portable-.*\.tar\.gz$/i }
+  ];
+
+  function formatSize(bytes) {
+    return (bytes / 1048576).toFixed(1).replace('.', ',') + ' МБ';
+  }
+
+  function formatDate(iso) {
+    var d = new Date(iso);
+    return d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
+  }
+
+  // Minimal, escaping renderer for the subset of Markdown the release
+  // bodies use: "### Heading" groups, "- " bullets (possibly wrapped over
+  // several lines) and plain paragraphs. Text is only ever inserted as text
+  // nodes, so a release body can never inject HTML into the page.
+  function renderBody(markdown) {
+    var frag = document.createDocumentFragment();
+    var lines = String(markdown || '').replace(/\r/g, '').split('\n');
+    var list = null;
+    var group = null;
+    var lastItem = null;
+
+    function target() { return group || frag; }
+
+    function closeList() {
+      if (list) { target().appendChild(list); list = null; }
+      lastItem = null;
+    }
+
+    function openGroup() {
+      closeList();
+      group = document.createElement('div');
+      group.className = 'release-group';
+      frag.appendChild(group);
+    }
+
+    function text(value) {
+      return value.replace(/\*\*/g, '').trim();
+    }
+
+    for (var i = 0; i < lines.length; i++) {
+      var raw = lines[i];
+      var line = raw.trim();
+
+      if (!line) {
+        closeList();
+        continue;
+      }
+
+      var heading = /^#{1,6}\s+(.*)$/.exec(line);
+      if (heading) {
+        openGroup();
+        var label = document.createElement('p');
+        var strong = document.createElement('strong');
+        strong.textContent = text(heading[1]).replace(/:$/, '') + ':';
+        label.appendChild(strong);
+        group.appendChild(label);
+        continue;
+      }
+
+      var bullet = /^[-*]\s+(.*)$/.exec(line);
+      if (bullet) {
+        if (!group) { openGroup(); }
+        if (!list) {
+          list = document.createElement('ul');
+          target().appendChild(list);
+        }
+        lastItem = document.createElement('li');
+        lastItem.textContent = text(bullet[1]);
+        list.appendChild(lastItem);
+        continue;
+      }
+
+      // an indented line continues the bullet above it
+      if (lastItem && /^\s{2,}\S/.test(raw)) {
+        lastItem.textContent += ' ' + text(line);
+        continue;
+      }
+
+      closeList();
+      var para = document.createElement('p');
+      para.textContent = text(line);
+      target().appendChild(para);
+    }
+
+    closeList();
+
+    if (!frag.childNodes.length) {
+      var empty = document.createElement('p');
+      empty.textContent = 'Описание отсутствует.';
+      frag.appendChild(empty);
+    }
+
+    return frag;
+  }
+
+  function applyLatest(release) {
+    var tag = release.tag_name || release.name || '';
+
+    var version = document.getElementById('hero-version');
+    if (version) { version.textContent = 'Версия ' + tag; }
+
+    var byKey = {};
+    (release.assets || []).forEach(function (asset) {
+      for (var i = 0; i < ASSETS.length; i++) {
+        var def = ASSETS[i];
+        if (byKey[def.key]) { continue; }
+        if (def.match.test(asset.name)) {
+          byKey[def.key] = asset;
+          return;
+        }
+      }
+    });
+
+    var cards = document.querySelectorAll('[data-asset]');
+    Array.prototype.forEach.call(cards, function (link) {
+      var asset = byKey[link.getAttribute('data-asset')];
+      if (!asset) { return; }
+      link.href = asset.browser_download_url;
+      var size = link.parentNode.querySelector('.file-size');
+      if (size) {
+        var parts = size.textContent.split('·');
+        size.textContent = parts[0].trim() + '· ' + formatSize(asset.size);
+      }
+    });
+  }
+
+  // The "Подробнее" arrow, built as SVG nodes so no HTML string is ever parsed.
+  function externalLinkIcon() {
+    var ns = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '2');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    svg.setAttribute('aria-hidden', 'true');
+
+    [
+      { tag: 'path', d: 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6' },
+      { tag: 'polyline', points: '15 3 21 3 21 9' },
+      { tag: 'line', x1: '10', y1: '14', x2: '21', y2: '3' }
+    ].forEach(function (spec) {
+      var node = document.createElementNS(ns, spec.tag);
+      Object.keys(spec).forEach(function (key) {
+        if (key !== 'tag') { node.setAttribute(key, spec[key]); }
+      });
+      svg.appendChild(node);
+    });
+
+    return svg;
+  }
+
+  function renderReleases(releases) {
+    var list = document.getElementById('release-list');
+    if (!list || !releases.length) { return; }
+
+    var built = document.createDocumentFragment();
+
+    releases.forEach(function (release, index) {
+      var card = document.createElement('div');
+      card.className = 'release-card';
+
+      var header = document.createElement('div');
+      header.className = 'release-header';
+
+      var version = document.createElement('span');
+      version.className = 'release-version';
+      version.textContent = release.tag_name || release.name;
+      header.appendChild(version);
+
+      var date = document.createElement('span');
+      date.className = 'release-date';
+      date.textContent = formatDate(release.published_at || release.created_at);
+      header.appendChild(date);
+
+      var tag = document.createElement('span');
+      if (release.prerelease) {
+        tag.className = 'release-tag release-tag--prerelease';
+        tag.textContent = 'Preview';
+      } else if (index === 0) {
+        tag.className = 'release-tag release-tag--latest';
+        tag.textContent = 'Последний';
+      } else {
+        tag.className = 'release-tag release-tag--stable';
+        tag.textContent = 'Stable';
+      }
+      header.appendChild(tag);
+      card.appendChild(header);
+
+      var body = document.createElement('div');
+      body.className = 'release-body';
+      body.appendChild(renderBody(release.body));
+      card.appendChild(body);
+
+      var link = document.createElement('a');
+      link.className = 'btn';
+      link.href = release.html_url;
+      link.rel = 'noopener';
+      link.appendChild(externalLinkIcon());
+      link.appendChild(document.createTextNode('Подробнее'));
+      card.appendChild(link);
+
+      built.appendChild(card);
+    });
+
+    list.replaceChildren(built);
+  }
+
+  function fail(message) {
+    var status = document.getElementById('releases-status');
+    if (!status) { return; }
+    status.textContent = message;
+    status.hidden = false;
+  }
+
+  // The markup above is a complete, working snapshot, so a failed or
+  // rate-limited refresh simply leaves it on screen.
+  if (!window.fetch) { return; }
+
+  fetch(API + '/releases?per_page=5', { headers: { Accept: 'application/vnd.github+json' } })
+    .then(function (res) {
+      if (!res.ok) { throw new Error('HTTP ' + res.status); }
+      return res.json();
+    })
+    .then(function (releases) {
+      if (!Array.isArray(releases) || !releases.length) { return; }
+      renderReleases(releases);
+
+      // downloads always point at the newest stable release
+      var stable = releases.filter(function (release) {
+        return !release.draft && !release.prerelease;
+      })[0];
+      if (stable) { applyLatest(stable); }
+    })
+    .catch(function () {
+      fail('Не удалось обновить список релизов — показаны последние известные данные.');
+    });
+})();
+</script>
+
 </body>
 </html>
