@@ -69,12 +69,3 @@ jobs:
           fi
           git commit -m "Update translations $(date -I)"
           git push origin HEAD:master
-
-  build:
-    needs: sync
-    # the push above uses GITHUB_TOKEN, which does not raise a push event
-    uses: ./.github/workflows/build.yml
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
